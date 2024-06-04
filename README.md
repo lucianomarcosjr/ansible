@@ -8,7 +8,7 @@ sudo apt install ansible
 ```
 ## Etapa 2 - Configurando o arquivo de inventário
 ```bash
-echo "[ubuntu] >> /etc/ansible/hosts
+echo "[ubuntu]" >> /etc/ansible/hosts
 echo "127.0.0.1" >> /etc/ansible/hosts
 ansible-inventory --list -y
 ```

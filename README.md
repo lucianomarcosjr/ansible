@@ -3,6 +3,7 @@ Processo de instalação do Ansible no servidor Ubuntu 22.04 LTS. Se baixar o re
 ```bash
 sudo bash install-ansible.sh
 ```
+# Instalação Manual
 ## Etapa 1 - Instalando Ansible
 ```bash
 sudo apt-add-repository ppa:ansible/ansible

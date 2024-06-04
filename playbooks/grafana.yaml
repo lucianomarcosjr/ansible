@@ -1,0 +1,35 @@
+---
+- name: Instalar o Grafana
+  hosts: ubuntu
+  become: yes
+
+  tasks:
+    - name: Atualizar o cache do APT
+      apt:
+        update_cache: yes
+
+    - name: Adicionar chave GPG do Grafana
+      apt_key:
+        url: https://packages.grafana.com/gpg.key
+        state: present
+
+    - name: Adicionar repositório do Grafana
+      apt_repository:
+        repo: deb https://packages.grafana.com/oss/deb stable main
+        state: present
+
+    - name: Instalar o Grafana
+      apt:
+        name: grafana
+        state: present
+
+    - name: Habilitar servico Grafana no systemctl
+      systemd:
+        name: grafana-server
+        enabled: yes
+
+    - name: Iniciar serviço Grafana
+      systemd:
+        name: grafana-server
+        state: started
+

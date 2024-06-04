@@ -1,0 +1,49 @@
+---
+- name: Instalando o docker
+  hosts: ubuntu
+  become: yes
+  
+  tasks:
+    - name: Atualizar o cache do APT
+      apt:
+        update_cache: yes
+
+    - name: Instalar pacotes necessarios para o docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+        state: present
+
+    - name: Adicionar chave GPG oficial do docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Adicionar repositorio do docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Atualizar cache de pacotes apos adicionar o repositorio do docker
+      apt:
+        update_cache: yes
+
+    - name: Instalar docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Executar container whoami de teste
+      docker_container:
+        name: whoami
+        image: jwilder/whoami
+        ports:
+          - "8000:8000"
+        state: started

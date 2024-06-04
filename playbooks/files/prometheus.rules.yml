@@ -1,0 +1,13 @@
+groups:
+  - name: High Error Rate
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status="500"}[5m])) /
+          sum(rate(http_requests_total[5m])) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate detected
+          description: '{{ $labels.instance }} is experiencing high error rates.'

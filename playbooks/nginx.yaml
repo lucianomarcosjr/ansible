@@ -1,0 +1,57 @@
+---
+- name: Instalar Nginx e Lets Encrypt
+  hosts: ubuntu
+  become: yes
+
+  tasks:
+    - name: Atualizar o cache do APT
+      apt:
+        update_cache: yes
+
+    - name: Instalar Nginx
+      apt:
+        name:
+          - nginx
+        state: present
+
+    - name: Instalar pacotes necessarios para o Lets Encrypt
+      apt:
+        name:
+          - python3-pip
+          - certbot
+          - python3-certbot-nginx
+        state: present
+
+    - name: Criar diretorio para os certificados do Lets Encrypt
+      file:
+        path: "/etc/letsencrypt/live"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Verificar se o certificado SSL precisa ser renovado
+      command: "certbot certificates"
+      register: cert_info
+
+#    - name: Obter certificado SSL usando Lets Encrypt
+#      shell: "certbot --nginx -d $dominio -d www.$dominio --non-interactive --agree-tos -m $email"
+#      args:
+#        executable: /bin/bash
+#      environment:
+#        PATH: "{{ ansible_env.PATH }}:/usr/sbin"
+#      when: "'Certificate Name: seu_dominio' not in cert_info.stdout"
+
+    - name: Copiar a configuracao default do Nginx
+      copy:
+        src: 'files/nginx.conf'
+        dest: '/etc/nginx/sites-available/default'
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Reiniciar o serviço Nginx
+      service:
+        name: nginx
+        state: restarted
+

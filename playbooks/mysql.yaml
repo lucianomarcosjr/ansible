@@ -1,0 +1,23 @@
+---
+- name: Instalar o MySQL
+  hosts: ubuntu
+  become: yes
+
+  tasks:
+    - name: Atualizar o cache do APT
+      apt:
+        update_cache: yes
+
+    - name: Instalar pacotes MySQL
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - mysql-server
+        - mysql-client
+
+    - name: Reiniciar serviço MySQL
+      service:
+        name: mysql
+        state: restarted
+

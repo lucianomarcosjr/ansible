@@ -1,0 +1,38 @@
+---
+- name: Instalacao do Prometheus Node Exporter
+  hosts: ubuntu
+  become: yes
+  
+  tasks:
+    - name: Baixar o node exporter do Prometheus
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz"
+        dest: "/tmp/node_exporter.tar.gz"
+
+    - name: Extrair os arquivos do node exporter
+      unarchive:
+        src: "/tmp/node_exporter.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+
+    - name: Criar o usuario node_exporter
+      user:
+        name: node_exporter
+        system: yes
+        shell: /usr/sbin/nologin
+
+    - name: Criar servico systemctl para o node exporter
+      template:
+        src: 'files/node_exporter.service'
+        dest: '/etc/systemd/system/node_exporter.service'
+
+  handlers:
+    - name: Reiniciar node exporter
+      systemd:
+        name: node_exporter
+        state: restarted
+
+    - name: Habilitar para auto iniciar node exporter
+      systemd:
+        name: node_exporter
+        enabled: yes

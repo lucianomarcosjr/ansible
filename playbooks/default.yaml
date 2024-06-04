@@ -1,0 +1,86 @@
+---
+- name: Instalacao dos pacotes padroes no Ubuntu 22.04
+  hosts: ubuntu
+  become: yes
+  
+  tasks:
+    - name: Atualizar o cache do APT
+      apt:
+        update_cache: yes
+        
+    - name: Instalar os pacotes padroes
+      apt:
+        name:
+          - vim
+          - byobu
+          - net-tools
+          - software-properties-common
+          - htop
+          - iotop
+          - lynx
+          - git
+          - iptables-persistent
+          - bc
+          - ntpdate
+          - jq
+          - curl
+          - fail2ban
+        state: present
+
+    - name: Configurar o fuso horario para Sao_Paulo
+      lineinfile:
+        path: /etc/timezone
+        line: 'America/Sao_Paulo'
+        create: yes
+        
+    - name: Configurando o locale US.UTF-8
+      lineinfile:
+        path: /etc/default/locale
+        line: 'LC_ALL=en_US.UTF-8'
+        create: yes
+        
+    - name: Aplicando as configuracoes do TZ e locale
+      meta: flush_handlers
+      
+    - name: Reconfigurando o locales
+      shell: dpkg-reconfigure -f noninteractive locales
+      args:
+        stdin: 'en_US.UTF-8'
+        
+    - name: Reconfigurando o TZData
+      shell: dpkg-reconfigure -f noninteractive tzdata
+      args:
+        stdin: 'America/Sao_Paulo'
+        
+    - name: Definindo o fuso horario com timedatactl
+      shell: timedatectl set-timezone America/Sao_Paulo
+      
+    - name: Desabilitando o UFW
+      systemd:
+        name: ufw
+        state: stopped
+        enabled: no
+        
+    - name: Copiando o arquivo de firewall rules.v4
+      copy:
+        src: 'files/rules.v4'
+        dest: '/etc/iptables/rules.v4'
+        
+    - name: Limpando as regras atuais
+      shell: iptables -F
+      
+    - name: Aplicando as novas regras no firewall
+      shell: iptables-restore < /etc/iptables/rules.v4
+
+    - name: Copiar o arquivo de configuracao do Fail2ban
+      copy:
+        src: 'files/jail.local'
+        dest: '/etc/fail2ban/jail.local'
+        owner: root
+        group: root
+        mode: '0644'
+        
+    - name: Reinicianr o Fail2ban
+      service:
+        name: fail2ban
+        state: restarted

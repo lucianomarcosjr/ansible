@@ -1,0 +1,28 @@
+*filter
+:INPUT ACCEPT [0:102354]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [92952:20764374]
+
+## Incrementar o firewall contrar ataques
+-A INPUT -i eth0 -m conntrack --ctstate INVALID -j DROP
+
+## Liberando os servicos
+-A INPUT -i eth0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i eth0 -p icmp -j ACCEPT
+-A INPUT -i eth0 -p tcp --dport 22 -j ACCEPT
+-A INPUT -i eth0 -p tcp --dport 80 -j ACCEPT
+-A INPUT -i eth0 -p tcp --dport 8000 -j ACCEPT
+-A INPUT -i eth0 -p tcp --dport 443 -j ACCEPT
+-A INPUT -i eth0 -p tcp --dport 53 -j ACCEPT
+-A INPUT -i eth0 -p udp --dport 53 -j ACCEPT
+-A INPUT -i eth0 -p udp --dport 161 -j ACCEPT
+-A INPUT -i eth0 -p udp --dport 162 -j ACCEPT
+
+## Ativando logs no kern.log
+#-A INPUT -i eth0 -j LOG
+
+# Se não estiver nas regras anteriores, negamos!!
+-A INPUT -i eth0 -j DROP
+
+COMMIT
+#

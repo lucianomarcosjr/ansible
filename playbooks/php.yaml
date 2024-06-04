@@ -1,0 +1,47 @@
+---
+- name: Instalar PHP-7.4
+  hosts: ubuntu
+  become: yes
+  
+  tasks:
+    #    - name: Adicionar repositório PPA para PHP 7.4
+    #  apt_repository:
+    #    repo: ppa:ondrej/php
+    #    state: present
+
+    #- name: Atualizar o cache do APT
+    #  apt:
+    #    update_cache: yes
+
+    - name: Instalar PHP 7.4 e extensoes
+      apt:
+        name:
+          - php7.4-fpm
+          - php7.4-mysql
+          - php7.4-xml
+          - php7.4-json
+          - php7.4-mbstring
+          - php7.4-gd
+          - php7.4-curl
+          - php7.4-zip
+        state: present
+        
+    - name: Copiar o arquivo de configuracao do PHP
+      copy:
+        src: 'files/www.conf'
+        dest: '/etc/php/7.4/fpm/pool.d/www.conf'
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Iniciar e habilitar o PHP-FPM
+      service:
+        name: php7.4-fpm
+        state: started
+        enabled: yes
+
+# handlers:
+#   - name: Reiniciar Nginx
+#     service:
+#       name: nginx
+#       state: restarted

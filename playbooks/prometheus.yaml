@@ -1,0 +1,65 @@
+---
+- name: Instalar Prometheus
+  hosts: ubuntu
+  become: true
+
+  tasks:
+    - name: Atualizar o cache do APT
+      apt:
+        update_cache: yes
+
+    - name: Baixar prometheus
+      get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v2.45.4/prometheus-2.45.4.linux-amd64.tar.gz"
+        dest: "/tmp/prometheus.tar.gz"
+
+    - name: Descompactar o prometheus.tar.gz
+      unarchive:
+        src: "/tmp/prometheus.tar.gz"
+        dest: "/opt/"
+        remote_src: yes
+      when: not ansible_check_mode
+
+    - name: Criar o usuario prometheus
+      user:
+        name: prometheus
+        state: present
+
+    - name: Configurar o diretorio do prometheus
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: prometheus
+        group: prometheus
+        mode: '0755'
+      loop:
+        - /etc/prometheus
+        - /var/lib/prometheus
+
+    - name: Copiar o arquivo de configuracao prometheus.yml
+      copy:
+        src: 'files/prometheus.yml'
+        dest: '/etc/prometheus/prometheus.yml'
+        owner: prometheus
+        group: prometheus
+
+    - name: Copiar o arquivo prometheus.rules.yml
+      copy:
+        src: 'files/prometheus.rules.yml'
+        dest: '/etc/prometheus/prometheus.rules.yml'
+        owner: prometheus
+        group: prometheus
+
+    - name: Criando o arquivo do prometheus no systemd
+      copy:
+        src: 'files/prometheus.service'
+        dest: '/etc/systemd/system/prometheus.service'
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reiniciar servico prometheus
+      systemd:
+        name: prometheus
+        state: restarted
+        enabled: yes

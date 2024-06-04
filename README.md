@@ -27,7 +27,14 @@ ansible ubuntu -a "df -h" -u root
 ansible ubuntu -m apt -a "name=vim state=latest" -u root
 ansible ubuntu -a "uptime" -u root
 ```
-
+## Etapa 6 - Mover os playbooks desse repositorio para o diretorio do ansible
+```bash
+mv ./playbooks /etc/ansible/playbooks
+```
+## Etapa 7 - Executando os playbooks disponiveis
+```bash
+ansible-playbook /etc/ansible/playbooks/default.yaml
+```
 ## Referência
 
  - [DigitalOcean - How To Install and Configure Ansible on Ubuntu 22.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-ansible-on-ubuntu-22-04)

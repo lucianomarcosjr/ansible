@@ -18,6 +18,8 @@ ansible-inventory --list -y
 # Verifica se a chave SSH já existe
 if [ ! -f "/root/.ssh/id_rsa" ]; then
   ssh-keygen -t rsa -b 4096 -f "/root/.ssh/id_rsa" -N ""
+  echo "Host *" >> /root/.ssh/config
+  echo "  StrictHostKeyChecking no" >> /root/.ssh/config
   cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 else
   echo "Chave SSH já existe em /root/.ssh/id_rsa, pulando a geração da chave."

@@ -1,0 +1,13 @@
+---
+- name: Instalacao do WordPress
+  hosts: ubuntu
+  become: yes
+
+  tasks:
+  - name: Baixar o arquivo do wp-cli
+    get_url: 
+      url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+      dest: /usr/local/bin/wp
+      owner: root
+      group: root
+      mode: '0766'

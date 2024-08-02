@@ -1,0 +1,34 @@
+---
+- name: Instalar Zabbix 7.0 LTS 
+  hosts: ubuntu
+  become: true
+
+  tasks:
+    - name: Atualizar o cache do APT
+      apt:
+        update_cache: yes
+
+    - name: Baixar o Zabbix 7.0 LTS
+      get_url:
+        url: "https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_7.0-1+ubuntu22.04_all.deb"
+        dest: "/tmp/zabbix-release_7.0-1+ubuntu22.04_all.deb"
+
+    - name: Instalar o pacote zabbix-release
+      ansible.builtin.apt:
+        deb: /tmp/zabbix-release_7.0-1+ubuntu22.04_all.deb
+        state: present
+
+    - name: Atualizar lista de pacotes
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Instalar pacotes do Zabbix
+      ansible.builtin.apt:
+        name:
+          - zabbix-server-mysql
+          - zabbix-frontend-php
+          - zabbix-nginx-conf
+          - zabbix-sql-scripts
+          - zabbix-agent
+        state: present
+        update_cache: yes
